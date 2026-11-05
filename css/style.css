@@ -1,0 +1,7 @@
+html, body { margin: 0; height: 100%; font-family: system-ui, sans-serif; }
+body { display: flex; flex-direction: column; }
+header { padding: 0.5rem 1rem; background: #234; color: #fff; }
+header h1 { margin: 0; font-size: 1.2rem; }
+main { flex: 1; display: flex; min-height: 0; }
+#assets { width: 220px; padding: 0.5rem; border-right: 1px solid #ccc; overflow: auto; }
+#canvas { flex: 1; background: #f4f1ea; }
