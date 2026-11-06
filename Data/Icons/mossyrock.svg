@@ -1,0 +1,681 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+      }
+
+      .cls-2 {
+        fill: #394d28;
+      }
+
+      .cls-3 {
+        fill: #3e532c;
+      }
+
+      .cls-4 {
+        fill: #546942;
+      }
+
+      .cls-5 {
+        fill: #32441c;
+      }
+
+      .cls-6 {
+        fill: #425e21;
+      }
+
+      .cls-7 {
+        fill: #bdd99c;
+      }
+
+      .cls-8 {
+        fill: #9fbc7c;
+      }
+
+      .cls-9 {
+        fill: #bad797;
+      }
+
+      .cls-10 {
+        fill: #536639;
+      }
+
+      .cls-11 {
+        fill: #3c4e26;
+      }
+
+      .cls-12 {
+        fill: #a6b890;
+      }
+
+      .cls-13 {
+        fill: #8ca86b;
+      }
+
+      .cls-14 {
+        fill: #93af72;
+      }
+
+      .cls-15 {
+        fill: #b6d393;
+      }
+
+      .cls-16 {
+        fill: #89a666;
+      }
+
+      .cls-17 {
+        fill: #c5d8ab;
+      }
+
+      .cls-18 {
+        fill: #45582b;
+      }
+
+      .cls-19 {
+        fill: #344322;
+      }
+
+      .cls-20 {
+        fill: #587231;
+      }
+
+      .cls-21 {
+        fill: #718b4a;
+      }
+
+      .cls-22 {
+        fill: #82a64c;
+      }
+
+      .cls-23 {
+        fill: #9fc369;
+      }
+
+      .cls-24 {
+        fill: #9cc066;
+      }
+
+      .cls-25 {
+        fill: #91b55b;
+      }
+
+      .cls-26 {
+        fill: #95b06b;
+      }
+
+      .cls-27 {
+        fill: #6d8843;
+      }
+
+      .cls-28 {
+        fill: #4d5d38;
+      }
+
+      .cls-29 {
+        fill: #404f2e;
+      }
+
+      .cls-30 {
+        fill: #698342;
+      }
+
+      .cls-31 {
+        fill: #546e2d;
+      }
+
+      .cls-32 {
+        fill: #6a8e34;
+      }
+
+      .cls-33 {
+        fill: #8baf55;
+      }
+
+      .cls-34 {
+        fill: #7fa349;
+      }
+
+      .cls-35 {
+        fill: #9dc167;
+      }
+
+      .cls-36 {
+        fill: #67823d;
+      }
+
+      .cls-37 {
+        fill: #c0db96;
+      }
+
+      .cls-38 {
+        fill: #465631;
+      }
+
+      .cls-39 {
+        fill: #42592f;
+      }
+
+      .cls-40 {
+        fill: #6a8157;
+      }
+
+      .cls-41 {
+        fill: #527229;
+      }
+
+      .cls-42 {
+        fill: #56762d;
+      }
+
+      .cls-43 {
+        fill: #4d7213;
+      }
+
+      .cls-44 {
+        fill: #44690a;
+      }
+
+      .cls-45 {
+        fill: #507516;
+      }
+
+      .cls-46 {
+        fill: #64892a;
+      }
+
+      .cls-47 {
+        fill: #b7d78c;
+      }
+
+      .cls-48 {
+        fill: #8bab60;
+      }
+
+      .cls-49 {
+        fill: #a1b88e;
+      }
+
+      .cls-50 {
+        fill: #2f461c;
+      }
+
+      .cls-51 {
+        fill: #475e34;
+      }
+
+      .cls-52 {
+        fill: #97ae84;
+      }
+
+      .cls-53 {
+        fill: #5e7e35;
+      }
+
+      .cls-54 {
+        fill: #58782f;
+      }
+
+      .cls-55 {
+        fill: #365b00;
+      }
+
+      .cls-56 {
+        fill: #5e8324;
+      }
+
+      .cls-57 {
+        fill: #94b95a;
+      }
+
+      .cls-58 {
+        fill: #5d8223;
+      }
+
+      .cls-59 {
+        fill: #96b66b;
+      }
+
+      .cls-60 {
+        fill: #a7c77c;
+      }
+
+      .cls-61 {
+        fill: #5d744a;
+      }
+
+      .cls-62 {
+        fill: #455c32;
+      }
+
+      .cls-63 {
+        fill: #475a3c;
+      }
+
+      .cls-64 {
+        fill: #8c9f81;
+      }
+
+      .cls-65 {
+        fill: #9db97f;
+      }
+
+      .cls-66 {
+        fill: #2b470d;
+      }
+
+      .cls-67 {
+        fill: #4f6d25;
+      }
+
+      .cls-68 {
+        fill: #8fad65;
+      }
+
+      .cls-69 {
+        fill: #9bb971;
+      }
+
+      .cls-70 {
+        fill: #91af67;
+      }
+
+      .cls-71 {
+        fill: #223d06;
+      }
+
+      .cls-72 {
+        fill: #6b864f;
+      }
+
+      .cls-73 {
+        fill: #617458;
+      }
+
+      .cls-74 {
+        fill: #4b5e42;
+      }
+
+      .cls-75 {
+        fill: #92a587;
+      }
+
+      .cls-76 {
+        fill: #a3b698;
+      }
+
+      .cls-77 {
+        fill: #8aa66c;
+      }
+
+      .cls-78 {
+        fill: #2e4a10;
+      }
+
+      .cls-79 {
+        fill: #4c6a22;
+      }
+
+      .cls-80 {
+        fill: #5d7b33;
+      }
+
+      .cls-81 {
+        fill: #86a45c;
+      }
+
+      .cls-82 {
+        fill: #acca82;
+      }
+
+      .cls-83 {
+        fill: #314c15;
+      }
+
+      .cls-84 {
+        fill: #66814a;
+      }
+
+      .cls-85 {
+        fill: #3e5135;
+      }
+
+      .cls-86 {
+        fill: #6a7d61;
+      }
+
+      .cls-87 {
+        fill: #717e6c;
+      }
+
+      .cls-88 {
+        fill: #8d9a88;
+      }
+
+      .cls-89 {
+        fill: #3d4c2f;
+      }
+
+      .cls-90 {
+        fill: #546346;
+      }
+
+      .cls-91 {
+        fill: #4b5b36;
+      }
+
+      .cls-92 {
+        fill: #364621;
+      }
+
+      .cls-93 {
+        fill: #40502c;
+      }
+
+      .cls-94 {
+        fill: #3d4d29;
+      }
+
+      .cls-95 {
+        fill: #3b492f;
+      }
+
+      .cls-96 {
+        fill: #354329;
+      }
+
+      .cls-97 {
+        fill: #7b877b;
+      }
+
+      .cls-98 {
+        fill: #303c30;
+      }
+
+      .cls-99 {
+        fill: #657260;
+      }
+
+      .cls-100 {
+        fill: #818e7c;
+      }
+
+      .cls-101 {
+        fill: #18270a;
+      }
+
+      .cls-102 {
+        fill: #576649;
+      }
+
+      .cls-103 {
+        fill: #697954;
+      }
+
+      .cls-104 {
+        fill: #6a7a55;
+      }
+
+      .cls-105 {
+        fill: #2d3d19;
+      }
+
+      .cls-106 {
+        fill: #556541;
+      }
+
+      .cls-107 {
+        fill: #26341a;
+      }
+
+      .cls-108 {
+        fill: #324026;
+      }
+
+      .cls-109 {
+        fill: #263226;
+      }
+
+      .cls-110 {
+        fill: #3a463a;
+      }
+
+      .cls-111 {
+        fill: #181e14;
+      }
+
+      .cls-112 {
+        fill: #292f25;
+      }
+
+      .cls-113 {
+        fill: #373a31;
+      }
+
+      .cls-114 {
+        fill: #3e4138;
+      }
+
+      .cls-115 {
+        fill: #61645d;
+      }
+
+      .cls-116 {
+        fill: #3d4039;
+      }
+
+      .cls-117 {
+        fill: #4f514c;
+      }
+
+      .cls-118 {
+        fill: #565853;
+      }
+
+      .cls-119 {
+        fill: #454744;
+      }
+
+      .cls-120 {
+        fill: #232522;
+      }
+
+      .cls-121 {
+        fill: #2b302c;
+      }
+
+      .cls-122 {
+        fill: #1b2117;
+      }
+
+      .cls-123 {
+        fill: #24271e;
+      }
+
+      .cls-124 {
+        fill: #171a11;
+      }
+
+      .cls-125 {
+        fill: #444740;
+      }
+
+      .cls-126 {
+        fill: #464942;
+      }
+
+      .cls-127 {
+        fill: #3b3d38;
+      }
+
+      .cls-128 {
+        fill: #2a2c27;
+      }
+
+      .cls-129 {
+        fill: #1f211e;
+      }
+
+      .cls-130 {
+        fill: #2d2f2c;
+      }
+
+      .cls-131 {
+        fill: #232824;
+      }
+
+      .cls-132 {
+        fill: #252324;
+      }
+
+      .cls-133 {
+        fill: #26202a;
+      }
+
+      .cls-134 {
+        fill: #2b2531;
+      }
+
+      .cls-135 {
+        fill: #322c38;
+      }
+    </style>
+  </defs>
+  <circle class="cls-1" cx="128" cy="128" r="128"/>
+  <rect class="cls-2" x="116" y="44" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-3" x="128" y="44" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-4" x="140" y="44" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="92" y="56" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="104" y="56" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-7" x="116" y="56" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-8" x="128" y="56" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-9" x="140" y="56" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-10" x="152" y="56" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-11" x="80" y="68" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-12" x="92" y="68" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-13" x="104" y="68" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-14" x="116" y="68" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-15" x="128" y="68" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-16" x="140" y="68" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-17" x="152" y="68" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-18" x="164" y="68" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-19" x="68" y="80" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-20" x="80" y="80" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-21" x="92" y="80" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-22" x="104" y="80" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-23" x="116" y="80" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-24" x="128" y="80" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-25" x="140" y="80" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-26" x="152" y="80" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-27" x="164" y="80" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-28" x="176" y="80" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-29" x="68" y="92" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-30" x="80" y="92" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-31" x="92" y="92" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-32" x="104" y="92" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-33" x="116" y="92" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-34" x="128" y="92" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-35" x="140" y="92" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-36" x="152" y="92" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-37" x="164" y="92" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-38" x="176" y="92" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-39" x="56" y="104" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-40" x="68" y="104" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-41" x="80" y="104" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-42" x="92" y="104" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-43" x="104" y="104" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-44" x="116" y="104" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-45" x="128" y="104" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-46" x="140" y="104" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-47" x="152" y="104" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-48" x="164" y="104" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-49" x="176" y="104" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-50" x="188" y="104" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-51" x="56" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-52" x="68" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-53" x="80" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-54" x="92" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-55" x="104" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-56" x="116" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-57" x="128" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-58" x="140" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-59" x="152" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-60" x="164" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-61" x="176" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-62" x="188" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-63" x="56" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-64" x="68" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-65" x="80" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-66" x="92" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-67" x="104" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-68" x="116" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-69" x="128" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-70" x="140" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-71" x="152" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-72" x="164" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-73" x="176" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-74" x="188" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-75" x="56" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-76" x="68" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-77" x="80" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-78" x="92" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-79" x="104" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-80" x="116" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-81" x="128" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-82" x="140" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-83" x="152" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-84" x="164" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-85" x="176" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-86" x="188" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-87" x="56" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-88" x="68" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-89" x="80" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-90" x="92" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-91" x="104" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-92" x="116" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-93" x="128" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-94" x="140" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-95" x="152" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-96" x="164" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-97" x="176" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-98" x="188" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-99" x="56" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-100" x="68" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-101" x="80" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-102" x="92" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-103" x="104" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-104" x="116" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-105" x="128" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-106" x="140" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-107" x="152" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-108" x="164" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-109" x="176" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-110" x="188" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-111" x="56" y="176" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-112" x="68" y="176" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-113" x="80" y="176" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-114" x="92" y="176" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-115" x="104" y="176" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-116" x="116" y="176" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-117" x="128" y="176" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-118" x="140" y="176" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-119" x="152" y="176" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-120" x="164" y="176" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-121" x="176" y="176" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-122" x="68" y="188" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-123" x="80" y="188" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-124" x="92" y="188" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-125" x="104" y="188" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-126" x="116" y="188" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-127" x="128" y="188" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-128" x="140" y="188" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-129" x="152" y="188" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-130" x="164" y="188" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-131" x="176" y="188" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-132" x="92" y="200" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-133" x="104" y="200" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-134" x="128" y="200" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-135" x="140" y="200" width="12" height="12" shape-rendering="crispEdges"/>
+</svg>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+      }
+
+      .cls-2 {
+        fill: #485080;
+      }
+
+      .cls-3 {
+        fill: #f0f0f0;
+      }
+
+      .cls-4 {
+        fill: #90d0f0;
+      }
+
+      .cls-5 {
+        fill: #6078c0;
+      }
+
+      .cls-6 {
+        fill: #383858;
+      }
+
+      .cls-7 {
+        fill: #000000;
+      }
+    </style>
+  </defs>
+  <circle class="cls-1" cx="128" cy="128" r="128"/>
+  <rect class="cls-2" x="116" y="44" width="36" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="92" y="56" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-3" x="116" y="56" width="36" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="152" y="56" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="80" y="68" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-4" x="92" y="68" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-3" x="104" y="68" width="60" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="164" y="68" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="68" y="80" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-4" x="80" y="80" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-3" x="92" y="80" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-4" x="104" y="80" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-3" x="116" y="80" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="140" y="80" width="36" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="176" y="80" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="68" y="92" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-4" x="80" y="92" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-3" x="104" y="92" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-4" x="116" y="92" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="128" y="92" width="36" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-4" x="164" y="92" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="176" y="92" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="56" y="104" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="68" y="104" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-4" x="92" y="104" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="116" y="104" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="140" y="104" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-4" x="152" y="104" width="36" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="188" y="104" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="56" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-4" x="68" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="80" y="116" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="104" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="116" y="116" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="140" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="152" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-4" x="164" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="176" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="188" y="116" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-7" x="44" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-4" x="56" y="128" width="36" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="92" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="104" y="128" width="48" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="152" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="164" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-4" x="176" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="188" y="128" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-7" x="44" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="56" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-4" x="68" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="80" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="92" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="104" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="116" y="140" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="140" y="140" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="164" y="140" width="36" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-7" x="200" y="140" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-7" x="44" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="56" y="152" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="80" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="92" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="104" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="116" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="128" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="140" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="152" y="152" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="176" y="152" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-7" x="200" y="152" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-7" x="44" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="56" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="68" y="164" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="92" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="104" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="116" y="164" width="36" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="152" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="164" y="164" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="188" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-7" x="200" y="164" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-7" x="56" y="176" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="68" y="176" width="48" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="116" y="176" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-5" x="128" y="176" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-2" x="140" y="176" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="152" y="176" width="36" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-7" x="188" y="176" width="12" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-7" x="68" y="188" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-6" x="92" y="188" width="72" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-7" x="164" y="188" width="24" height="12" shape-rendering="crispEdges"/>
+  <rect class="cls-7" x="92" y="200" width="72" height="12" shape-rendering="crispEdges"/>
+</svg>

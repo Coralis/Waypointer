@@ -22,19 +22,23 @@
 
   <div id="workspace">
     <aside id="left-panel" class="side-panel">
-      <section class="panel-section" id="templates">
+      <section class="panel-section browser" id="templates">
         <h2>Templates</h2>
         <div class="subtabs" role="tablist">
           <button type="button" class="active" data-kind="marker">Markers</button>
           <button type="button" data-kind="path">Paths</button>
         </div>
-        <ul class="item-list template-list" id="template-list"></ul>
+        <ul class="item-list template-list"></ul>
       </section>
       <ul id="context-menu" hidden></ul>
       <div class="splitter-h"></div>
-      <section class="panel-section" id="properties">
-        <h2>Properties</h2>
-        <p class="empty">Nothing selected.</p>
+      <section class="panel-section browser" id="assets">
+        <h2>Assets</h2>
+        <div class="subtabs" role="tablist">
+          <button type="button" class="active" data-kind="icon">Icons</button>
+          <button type="button" data-kind="image">Images</button>
+        </div>
+        <ul class="item-list template-list"></ul>
       </section>
     </aside>
     <div class="splitter-v" data-resize="left-panel" data-side="left"></div>
@@ -57,6 +61,8 @@
             <rect x="-5000" y="-5000" width="10000" height="10000" fill="url(#checker)"/>
             <g id="layer-fills"></g>
             <g id="map-content"></g>
+            <g id="anchor-guides" pointer-events="none"></g>
+            <g id="ghost" opacity="0.5" pointer-events="none"></g>
           </g>
         </svg>
         <div id="zoom-controls">
@@ -85,19 +91,20 @@
           <input type="search" id="layer-search" placeholder="Search layers...">
         </div>
         <ul class="item-list" id="layer-list"></ul>
-        <div id="color-popover" hidden>
+        <div id="color-popover" class="layer-form" hidden></div>
+        <template id="layer-fields">
           <fieldset>
             <legend>Layer</legend>
-            <label class="row">Color <input type="color" id="layer-color"></label>
+            <label class="row">Color <input type="color" data-f="layer-color"></label>
             <label class="row">Opacity
-              <input type="range" id="layer-alpha" min="0" max="100">
-              <span class="num" data-suffix="%"><input type="number" id="layer-alpha-num" min="0" max="100"></span>
+              <input type="range" data-f="layer-alpha" min="0" max="100">
+              <span class="num" data-suffix="%"><input type="number" data-f="layer-alpha-num" min="0" max="100"></span>
             </label>
           </fieldset>
           <fieldset>
             <legend>Grid</legend>
             <label class="row">Style
-              <select id="grid-style">
+              <select data-f="grid-style">
                 <option value="none">None</option>
                 <option value="solid">Solid</option>
                 <option value="dashed">Dashed</option>
@@ -105,26 +112,415 @@
                 <option value="crosshair">Crosshair</option>
               </select>
             </label>
-            <label class="row">Color <input type="color" id="grid-color"></label>
+            <label class="row">Color <input type="color" data-f="grid-color"></label>
             <label class="row">Opacity
-              <input type="range" id="grid-alpha" min="0" max="100">
-              <span class="num" data-suffix="%"><input type="number" id="grid-alpha-num" min="0" max="100"></span>
+              <input type="range" data-f="grid-alpha" min="0" max="100">
+              <span class="num" data-suffix="%"><input type="number" data-f="grid-alpha-num" min="0" max="100"></span>
             </label>
             <label class="row">Size
-              <input type="range" id="grid-size" min="5" max="200">
-              <span class="num" data-suffix="px"><input type="number" id="grid-size-num" min="5" max="200"></span>
+              <input type="range" data-f="grid-size" min="5" max="200">
+              <span class="num" data-suffix="px"><input type="number" data-f="grid-size-num" min="5" max="200"></span>
             </label>
+          </fieldset>
+        </template>
+        <dialog id="layer-dialog" class="modal">
+          <form method="dialog" class="layer-form">
+            <h2>Edit Layer</h2>
+            <fieldset>
+              <legend>General</legend>
+              <label class="row">Name <input type="text" data-f="name"></label>
+              <label class="row">Visible <input type="checkbox" data-f="visible"></label>
+              <label class="row">Locked <input type="checkbox" data-f="locked"></label>
+            </fieldset>
+            <div class="actions">
+              <button value="accept">Accept</button>
+              <button value="cancel">Cancel</button>
+            </div>
+          </form>
+        </dialog>
+      </section>
+      <div class="splitter-h"></div>
+      <section class="panel-section" id="properties">
+        <h2>Properties</h2>
+        <p class="empty">Nothing selected.</p>
+        <div id="marker-properties" hidden>
+          <h3 id="selected-item-name"></h3>
+          <fieldset id="selected-marker-text-section">
+            <legend>Text Slots</legend>
+            <div id="selected-marker-slots" class="property-slot-list"></div>
+          </fieldset>
+          <fieldset>
+            <legend>Position</legend>
+            <div id="selected-marker-coordinate-grid" class="coordinate-grid">
+              <span>X</span><output id="selected-marker-x">0</output>
+              <span>Y</span><output id="selected-marker-y">0</output>
+            </div>
+            <div id="selected-path-position" class="path-properties" hidden>
+              <div class="path-point-readout">
+                <strong>Start</strong>
+                <span>X <output id="selected-path-start-x">0</output></span>
+                <span>Y <output id="selected-path-start-y">0</output></span>
+              </div>
+              <div class="path-point-readout">
+                <strong>End</strong>
+                <span>X <output id="selected-path-end-x">0</output></span>
+                <span>Y <output id="selected-path-end-y">0</output></span>
+              </div>
+              <div class="path-length-readout">Length <output id="selected-path-length">0</output></div>
+            </div>
+            <p id="selected-path-empty" class="empty" hidden>Place a start point to define the path.</p>
+            <div id="selected-marker-snap-actions" class="snap-actions">
+              <button type="button" id="grid-snap" aria-pressed="false">Grid Snap</button>
+              <button type="button" id="anchor-snap" aria-pressed="false">Anchor Snap</button>
+            </div>
           </fieldset>
         </div>
       </section>
-      <div class="splitter-h"></div>
-      <section class="panel-section" id="objects">
-        <h2>Objects</h2>
-        <input type="search" id="object-search" placeholder="Search markers and paths...">
-        <ul class="item-list" id="object-list"></ul>
-      </section>
     </aside>
   </div>
+  <dialog id="marker-dialog" class="modal">
+    <form method="dialog" class="layer-form marker-form">
+      <h2 id="marker-title">New Marker</h2>
+      <div class="marker-body">
+        <div class="marker-left">
+          <svg id="marker-preview" xmlns="http://www.w3.org/2000/svg">
+            <g id="marker-viewport">
+              <rect x="-5000" y="-5000" width="10000" height="10000" fill="url(#checker)"/>
+              <g id="marker-bg"></g>
+              <g id="marker-shape"></g>
+              <g id="marker-overlay"></g>
+              <g id="marker-anchors"></g>
+            </g>
+          </svg>
+          <div class="bg-row">
+            <span>Background</span>
+            <button type="button" class="swatch" id="marker-bg-swatch" title="Background color and grid"></button>
+            <div class="zoom-row">
+              <button type="button" id="marker-zoom-out">-</button>
+              <span id="marker-zoom-level">100%</span>
+              <button type="button" id="marker-zoom-in">+</button>
+              <button type="button" id="marker-zoom-reset">Reset</button>
+            </div>
+          </div>
+        </div>
+        <div class="marker-right">
+          <div class="subtabs" id="marker-tabs" role="tablist">
+            <button type="button" class="active" data-tab="style">Style</button>
+            <button type="button" data-tab="text">Text</button>
+            <button type="button" data-tab="anchors">Anchors</button>
+          </div>
+          <div class="tab-panel" data-panel="style">
+            <fieldset>
+              <legend>Marker</legend>
+              <label class="row">Name <input type="text" data-f="name"></label>
+              <p class="warn" data-f="warn" hidden></p>
+            </fieldset>
+            <fieldset>
+              <legend>Size</legend>
+              <label class="row">Width
+                <input type="range" data-f="width" min="1" max="200">
+                <span class="num" data-suffix="px"><input type="number" data-f="width-num" min="1" max="200"></span>
+              </label>
+              <label class="row">Height
+                <input type="range" data-f="height" min="1" max="200">
+                <span class="num" data-suffix="px"><input type="number" data-f="height-num" min="1" max="200"></span>
+              </label>
+            </fieldset>
+            <fieldset>
+              <legend>Box</legend>
+              <label class="row">Style
+                <select data-f="box-style">
+                  <option value="square">Square</option>
+                  <option value="rounded">Rounded</option>
+                  <option value="pill">Pill</option>
+                  <option value="circle">Circle</option>
+                </select>
+              </label>
+              <label class="row">Color <input type="color" data-f="fill"></label>
+              <label class="row">Opacity
+                <input type="range" data-f="fill-alpha" min="0" max="100">
+                <span class="num" data-suffix="%"><input type="number" data-f="fill-alpha-num" min="0" max="100"></span>
+              </label>
+            </fieldset>
+            <fieldset>
+              <legend>Outline</legend>
+              <label class="row">Style
+                <select data-f="outline-style">
+                  <option value="solid">Solid</option>
+                  <option value="dash">Dash</option>
+                  <option value="dots">Dots</option>
+                </select>
+              </label>
+              <label class="row">Color <input type="color" data-f="outline"></label>
+              <label class="row">Opacity
+                <input type="range" data-f="outline-alpha" min="0" max="100">
+                <span class="num" data-suffix="%"><input type="number" data-f="outline-alpha-num" min="0" max="100"></span>
+              </label>
+              <label class="row">Thickness
+                <input type="range" data-f="thickness" min="0" max="50">
+                <span class="num" data-suffix="px"><input type="number" data-f="thickness-num" min="0" max="50"></span>
+              </label>
+            </fieldset>
+          </div>
+          <div class="tab-panel" data-panel="text" hidden>
+            <ul class="item-list slot-list" id="slot-list"></ul>
+            <div class="slot-actions">
+              <button type="button" id="slot-new">New</button>
+              <button type="button" id="slot-copy">Copy</button>
+              <button type="button" id="slot-rename">Rename</button>
+              <button type="button" id="slot-delete">Delete</button>
+            </div>
+            <fieldset>
+              <legend>Font</legend>
+              <div class="font-bar">
+                <select data-f="slot-font" title="Font">
+                  <option value="sans-serif">Sans-serif</option>
+                  <option value="serif">Serif</option>
+                  <option value="monospace">Monospace</option>
+                  <option value="Arial">Arial</option>
+                  <option value="Georgia">Georgia</option>
+                  <option value="Verdana">Verdana</option>
+                  <option value="'Courier New'">Courier New</option>
+                </select>
+                <span class="stepper">
+                  <button type="button" data-step="-1" title="Smaller">-</button>
+                  <input type="number" data-f="slot-size" min="4" max="100" title="Font size">
+                  <button type="button" data-step="1" title="Larger">+</button>
+                </span>
+                <button type="button" class="icon-btn" data-f="slot-bold" data-toggle title="Bold"><b>B</b></button>
+                <button type="button" class="icon-btn" data-f="slot-italic" data-toggle title="Italic"><i>I</i></button>
+                <label class="icon-btn color-btn" title="Font color">
+                  <span class="glyph">A</span><span class="bar"></span>
+                  <input type="color" data-f="slot-color">
+                </label>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Alignment</legend>
+              <div class="align-row">
+                <label>Horizontal
+                  <select data-f="slot-halign">
+                    <option value="left">Left</option>
+                    <option value="center">Center</option>
+                    <option value="right">Right</option>
+                  </select>
+                </label>
+                <label>Vertical
+                  <select data-f="slot-valign">
+                    <option value="top">Top</option>
+                    <option value="middle">Middle</option>
+                    <option value="bottom">Bottom</option>
+                  </select>
+                </label>
+              </div>
+              <label class="row">Wrap
+                <select data-f="slot-mode">
+                  <option value="wrap">Wrap</option>
+                  <option value="force">Force Wrap</option>
+                  <option value="shrink">Shrink</option>
+                  <option value="clip">Clip</option>
+                </select>
+              </label>
+            </fieldset>
+            <fieldset>
+              <legend>Area</legend>
+              <label class="row">X
+                <input type="range" data-f="slot-x" min="0" max="100">
+                <span class="num" data-suffix="%"><input type="number" data-f="slot-x-num" min="0" max="100"></span>
+              </label>
+              <label class="row">Y
+                <input type="range" data-f="slot-y" min="0" max="100">
+                <span class="num" data-suffix="%"><input type="number" data-f="slot-y-num" min="0" max="100"></span>
+              </label>
+              <label class="row">Width
+                <input type="range" data-f="slot-w" min="2" max="100">
+                <span class="num" data-suffix="%"><input type="number" data-f="slot-w-num" min="2" max="100"></span>
+              </label>
+              <label class="row">Height
+                <input type="range" data-f="slot-h" min="2" max="100">
+                <span class="num" data-suffix="%"><input type="number" data-f="slot-h-num" min="2" max="100"></span>
+              </label>
+            </fieldset>
+          </div>
+          <div class="tab-panel" data-panel="anchors" id="anchor-panel" hidden></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button value="accept">Accept</button>
+        <button value="cancel">Cancel</button>
+      </div>
+      <input type="text" id="slot-text-edit" hidden>
+    </form>
+  </dialog>
+  <dialog id="path-dialog" class="modal">
+    <form method="dialog" class="layer-form path-form">
+      <h2 id="path-title">New Path</h2>
+      <div class="marker-body">
+        <div class="marker-left">
+          <svg id="path-preview" xmlns="http://www.w3.org/2000/svg">
+            <g id="path-viewport">
+              <rect x="-5000" y="-5000" width="10000" height="10000" fill="url(#checker)"/>
+              <g id="path-bg"></g>
+              <g id="path-shape"></g>
+            </g>
+          </svg>
+          <div class="bg-row">
+            <span>Background</span>
+            <button type="button" class="swatch" id="path-bg-swatch" title="Background color and grid"></button>
+            <div class="zoom-row path-zoom-row">
+              <button type="button" id="path-zoom-out" title="Zoom out">-</button>
+              <span id="path-zoom-level">100%</span>
+              <button type="button" id="path-zoom-in" title="Zoom in">+</button>
+              <button type="button" id="path-zoom-reset">Reset</button>
+            </div>
+          </div>
+        </div>
+        <div class="marker-right">
+          <fieldset>
+            <legend>Path</legend>
+            <label class="row">Name <input type="text" data-f="path-name"></label>
+            <label><input type="checkbox" data-f="path-orthogonal"> Orthogonal</label>
+            <label><input type="checkbox" data-f="path-merge"> Merge</label>
+            <p class="warn" data-f="path-warn" hidden></p>
+          </fieldset>
+          <fieldset>
+            <legend>Size</legend>
+            <label class="row">Width
+              <input type="range" data-f="path-width" min="1" max="400" disabled aria-readonly="true">
+              <span class="num" data-suffix="px"><input type="number" data-f="path-width-num" min="1" max="400" disabled aria-readonly="true"></span>
+            </label>
+            <label class="row">Height
+              <input type="range" data-f="path-height" min="1" max="200">
+              <span class="num" data-suffix="px"><input type="number" data-f="path-height-num" min="1" max="200"></span>
+            </label>
+          </fieldset>
+          <fieldset>
+            <legend>Box</legend>
+            <label class="row">Style
+              <select data-f="path-box-style">
+                <option value="square">Square</option>
+                <option value="rounded">Rounded</option>
+                <option value="pill">Pill</option>
+                <option value="circle">Circle</option>
+              </select>
+            </label>
+            <label class="row">Color <input type="color" data-f="path-fill"></label>
+            <label class="row">Opacity
+              <input type="range" data-f="path-fill-alpha" min="0" max="100">
+              <span class="num" data-suffix="%"><input type="number" data-f="path-fill-alpha-num" min="0" max="100"></span>
+            </label>
+          </fieldset>
+          <fieldset>
+            <legend>Outline</legend>
+            <label class="row">Style
+              <select data-f="path-outline-style">
+                <option value="solid">Solid</option>
+                <option value="dash">Dash</option>
+                <option value="dots">Dots</option>
+              </select>
+            </label>
+            <label class="row">Color <input type="color" data-f="path-outline"></label>
+            <label class="row">Opacity
+              <input type="range" data-f="path-outline-alpha" min="0" max="100">
+              <span class="num" data-suffix="%"><input type="number" data-f="path-outline-alpha-num" min="0" max="100"></span>
+            </label>
+            <label class="row">Thickness
+              <input type="range" data-f="path-thickness" min="0" max="50">
+              <span class="num" data-suffix="px"><input type="number" data-f="path-thickness-num" min="0" max="50"></span>
+            </label>
+          </fieldset>
+        </div>
+      </div>
+      <div class="actions">
+        <button value="accept">Accept</button>
+        <button value="cancel">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="icon-dialog" class="modal">
+    <form method="dialog" class="layer-form icon-form">
+      <h2 id="icon-title">New Icon</h2>
+      <div class="marker-body">
+        <div class="marker-left">
+          <svg id="icon-preview" xmlns="http://www.w3.org/2000/svg">
+            <g id="icon-viewport">
+              <rect x="-5000" y="-5000" width="10000" height="10000" fill="url(#checker)"/>
+              <g id="icon-bg"></g>
+              <g id="icon-shape"></g>
+            </g>
+          </svg>
+          <div class="bg-row">
+            <span>Background</span>
+            <button type="button" class="swatch" id="icon-bg-swatch" title="Background color and grid"></button>
+            <div class="zoom-row">
+              <button type="button" id="icon-zoom-out">-</button>
+              <span id="icon-zoom-level">100%</span>
+              <button type="button" id="icon-zoom-in">+</button>
+              <button type="button" id="icon-zoom-reset">Reset</button>
+            </div>
+          </div>
+        </div>
+        <div class="marker-right">
+          <fieldset>
+            <legend>Icon</legend>
+            <label class="row">Name <input type="text" data-f="icon-name"></label>
+            <label class="row">Image <select data-f="icon-image"></select></label>
+            <p class="warn" data-f="icon-warn" hidden></p>
+          </fieldset>
+          <fieldset>
+            <legend>Size</legend>
+            <label class="row">Width
+              <input type="range" data-f="icon-width" min="1" max="200">
+              <span class="num" data-suffix="px"><input type="number" data-f="icon-width-num" min="1" max="200"></span>
+            </label>
+            <label class="row">Height
+              <input type="range" data-f="icon-height" min="1" max="200">
+              <span class="num" data-suffix="px"><input type="number" data-f="icon-height-num" min="1" max="200"></span>
+            </label>
+          </fieldset>
+          <fieldset>
+            <legend>Box</legend>
+            <label class="row">Style
+              <select data-f="icon-box-style">
+                <option value="square">Square</option>
+                <option value="rounded">Rounded</option>
+                <option value="pill">Pill</option>
+                <option value="circle">Circle</option>
+              </select>
+            </label>
+            <label class="row">Color <input type="color" data-f="icon-fill"></label>
+            <label class="row">Opacity
+              <input type="range" data-f="icon-fill-alpha" min="0" max="100">
+              <span class="num" data-suffix="%"><input type="number" data-f="icon-fill-alpha-num" min="0" max="100"></span>
+            </label>
+          </fieldset>
+          <fieldset>
+            <legend>Outline</legend>
+            <label class="row">Style
+              <select data-f="icon-outline-style">
+                <option value="solid">Solid</option>
+                <option value="dash">Dash</option>
+                <option value="dots">Dots</option>
+              </select>
+            </label>
+            <label class="row">Color <input type="color" data-f="icon-outline"></label>
+            <label class="row">Opacity
+              <input type="range" data-f="icon-outline-alpha" min="0" max="100">
+              <span class="num" data-suffix="%"><input type="number" data-f="icon-outline-alpha-num" min="0" max="100"></span>
+            </label>
+            <label class="row">Thickness
+              <input type="range" data-f="icon-thickness" min="0" max="50">
+              <span class="num" data-suffix="px"><input type="number" data-f="icon-thickness-num" min="0" max="50"></span>
+            </label>
+          </fieldset>
+        </div>
+      </div>
+      <div class="actions">
+        <button value="accept">Accept</button>
+        <button value="cancel">Cancel</button>
+      </div>
+    </form>
+  </dialog>
   <script src="js/app.js"></script>
 </body>
 </html>
