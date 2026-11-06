@@ -7,11 +7,76 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header><h1>Waypointer</h1></header>
-  <main>
-    <aside id="assets"><h2>Assets</h2></aside>
-    <svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg>
-  </main>
+  <header id="topbar">
+    <span class="brand">Waypointer</span>
+    <nav>
+      <button type="button" data-action="new">New</button>
+      <button type="button" data-action="load">Load</button>
+      <button type="button" data-action="save">Save</button>
+      <button type="button" data-action="export">Export</button>
+      <span class="sep"></span>
+      <button type="button" data-action="undo">Undo</button>
+      <button type="button" data-action="redo">Redo</button>
+    </nav>
+  </header>
+
+  <div id="workspace">
+    <aside id="left-panel" class="side-panel">
+      <section class="panel-section" id="templates">
+        <h2>Templates</h2>
+        <h3>Markers</h3>
+        <ul class="item-list" id="marker-templates"></ul>
+        <h3>Paths</h3>
+        <ul class="item-list" id="path-templates"></ul>
+      </section>
+      <div class="splitter-h"></div>
+      <section class="panel-section" id="properties">
+        <h2>Properties</h2>
+        <p class="empty">Nothing selected.</p>
+      </section>
+    </aside>
+    <div class="splitter-v" data-resize="left-panel" data-side="left"></div>
+
+    <main id="center-panel">
+      <div id="tabbar">
+        <div id="tabs" role="tablist"></div>
+        <button type="button" id="new-tab" title="New map">+</button>
+      </div>
+      <div id="canvas-wrap">
+        <svg id="canvas" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+              <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#d8d3c6" stroke-width="1"/>
+            </pattern>
+          </defs>
+          <g id="viewport">
+            <rect x="-5000" y="-5000" width="10000" height="10000" fill="url(#grid)"/>
+            <g id="map-content"></g>
+          </g>
+        </svg>
+        <div id="zoom-controls">
+          <button type="button" id="zoom-out">-</button>
+          <span id="zoom-level">100%</span>
+          <button type="button" id="zoom-in">+</button>
+          <button type="button" id="zoom-reset">Reset</button>
+        </div>
+      </div>
+    </main>
+
+    <div class="splitter-v" data-resize="right-panel" data-side="right"></div>
+    <aside id="right-panel" class="side-panel">
+      <section class="panel-section" id="layers">
+        <h2>Layers</h2>
+        <ul class="item-list" id="layer-list"></ul>
+      </section>
+      <div class="splitter-h"></div>
+      <section class="panel-section" id="objects">
+        <h2>Objects</h2>
+        <input type="search" id="object-search" placeholder="Search markers and paths...">
+        <ul class="item-list" id="object-list"></ul>
+      </section>
+    </aside>
+  </div>
   <script src="js/app.js"></script>
 </body>
 </html>
