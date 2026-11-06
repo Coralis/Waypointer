@@ -60,3 +60,40 @@ button:hover { border-color: var(--accent); }
 #canvas.panning { cursor: grabbing; }
 #zoom-controls { position: absolute; right: 0.75rem; bottom: 0.75rem; display: flex; align-items: center; gap: 0.3rem; padding: 0.3rem; background: var(--panel); border: 1px solid var(--border); border-radius: 4px; }
 #zoom-level { min-width: 3.2em; text-align: center; }
+
+/* Layers */
+.layer-header { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.4rem; }
+.layer-header .col-icon { width: 24px; flex: none; display: flex; justify-content: center; color: var(--muted); }
+.layer-header input { flex: 1; min-width: 0; padding: 0.25rem 0.5rem; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 3px; }
+.layer-row { display: flex; align-items: center; gap: 0.4rem; }
+.item-list li.layer-row { padding: 0.25rem 0; }
+.layer-row > input[type=checkbox], .layer-row > .swatch { flex: none; display: block; margin: 0 4px; }
+.layer-row > input[type=checkbox] { width: 16px; height: 16px; }
+.layer-row > .swatch { width: 16px; height: 16px; }
+.swatch { flex: none; width: 20px; height: 20px; padding: 0; border-radius: 3px; background: linear-gradient(var(--c), var(--c)), repeating-conic-gradient(#ccc 0 25%, #fff 0 50%) 0 0 / 8px 8px; }
+#color-popover { position: fixed; z-index: 100; display: flex; flex-direction: column; gap: 0.6rem; width: 260px; padding: 0.6rem; background: var(--panel-alt); border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); }
+#color-popover[hidden] { display: none; }
+#color-popover fieldset { min-width: 0; display: flex; flex-direction: column; gap: 0.4rem; margin: 0; padding: 0.4rem 0.6rem 0.6rem; border: 1px solid var(--border); border-radius: 4px; }
+#color-popover legend { padding: 0 0.3rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+#color-popover .row { display: grid; grid-template-columns: 4.5em 1fr auto; align-items: center; gap: 0.5rem; }
+#color-popover input[type=range] { grid-column: 2; width: 100%; min-width: 0; margin: 0; }
+#color-popover input[type=number], #color-popover select { color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 3px; padding: 0.15rem 0.3rem; }
+#color-popover select, #color-popover input[type=color] { grid-column: 2 / -1; width: 100%; }
+#color-popover input[type=color] { height: 26px; padding: 0; }
+#color-popover .num { position: relative; display: block; }
+#color-popover .num input { width: 5.5em; padding-right: 1.8em; text-align: right; appearance: textfield; -moz-appearance: textfield; }
+#color-popover .num input::-webkit-inner-spin-button { appearance: none; }
+#color-popover .num::after { content: attr(data-suffix); position: absolute; right: 0.4em; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+
+/* Templates */
+#templates { display: flex; flex-direction: column; overflow: hidden; }
+.subtabs { display: flex; flex: none; gap: 2px; margin-bottom: 0.4rem; }
+.subtabs button { flex: 1; border-radius: 3px 3px 0 0; color: var(--muted); }
+.subtabs button.active { color: var(--text); border-color: var(--accent); background: var(--bg); }
+.template-list { flex: 1; min-height: 0; overflow-y: auto; border: 1px solid var(--border); border-radius: 3px; background: var(--bg); padding: 2px; }
+.template-list li.create { color: var(--accent); font-style: italic; }
+
+#context-menu { position: fixed; z-index: 100; min-width: 160px; margin: 0; padding: 3px; list-style: none; background: var(--panel-alt); border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); }
+#context-menu[hidden] { display: none; }
+#context-menu li { padding: 0.3rem 0.6rem; border-radius: 3px; cursor: pointer; }
+#context-menu li:hover { background: var(--accent); color: #fff; }

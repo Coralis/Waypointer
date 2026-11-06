@@ -24,11 +24,13 @@
     <aside id="left-panel" class="side-panel">
       <section class="panel-section" id="templates">
         <h2>Templates</h2>
-        <h3>Markers</h3>
-        <ul class="item-list" id="marker-templates"></ul>
-        <h3>Paths</h3>
-        <ul class="item-list" id="path-templates"></ul>
+        <div class="subtabs" role="tablist">
+          <button type="button" class="active" data-kind="marker">Markers</button>
+          <button type="button" data-kind="path">Paths</button>
+        </div>
+        <ul class="item-list template-list" id="template-list"></ul>
       </section>
+      <ul id="context-menu" hidden></ul>
       <div class="splitter-h"></div>
       <section class="panel-section" id="properties">
         <h2>Properties</h2>
@@ -45,12 +47,15 @@
       <div id="canvas-wrap">
         <svg id="canvas" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
-              <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#d8d3c6" stroke-width="1"/>
+            <pattern id="checker" width="20" height="20" patternUnits="userSpaceOnUse">
+              <rect width="20" height="20" fill="#ffffff"/>
+              <rect width="10" height="10" fill="#cccccc"/>
+              <rect x="10" y="10" width="10" height="10" fill="#cccccc"/>
             </pattern>
           </defs>
           <g id="viewport">
-            <rect x="-5000" y="-5000" width="10000" height="10000" fill="url(#grid)"/>
+            <rect x="-5000" y="-5000" width="10000" height="10000" fill="url(#checker)"/>
+            <g id="layer-fills"></g>
             <g id="map-content"></g>
           </g>
         </svg>
@@ -67,7 +72,50 @@
     <aside id="right-panel" class="side-panel">
       <section class="panel-section" id="layers">
         <h2>Layers</h2>
+        <div class="layer-header">
+          <span class="col-icon" title="Visible">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+          </span>
+          <span class="col-icon" title="Locked">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          </span>
+          <span class="col-icon" title="Layer color and grid">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 1.5-2s0-2 1.5-2h2a4 4 0 0 0 4-4c0-5-4.5-10-9-10z"/><circle cx="7.5" cy="11" r="1"/><circle cx="11" cy="7" r="1"/><circle cx="16" cy="8" r="1"/></svg>
+          </span>
+          <input type="search" id="layer-search" placeholder="Search layers...">
+        </div>
         <ul class="item-list" id="layer-list"></ul>
+        <div id="color-popover" hidden>
+          <fieldset>
+            <legend>Layer</legend>
+            <label class="row">Color <input type="color" id="layer-color"></label>
+            <label class="row">Opacity
+              <input type="range" id="layer-alpha" min="0" max="100">
+              <span class="num" data-suffix="%"><input type="number" id="layer-alpha-num" min="0" max="100"></span>
+            </label>
+          </fieldset>
+          <fieldset>
+            <legend>Grid</legend>
+            <label class="row">Style
+              <select id="grid-style">
+                <option value="none">None</option>
+                <option value="solid">Solid</option>
+                <option value="dashed">Dashed</option>
+                <option value="dots">Dots</option>
+                <option value="crosshair">Crosshair</option>
+              </select>
+            </label>
+            <label class="row">Color <input type="color" id="grid-color"></label>
+            <label class="row">Opacity
+              <input type="range" id="grid-alpha" min="0" max="100">
+              <span class="num" data-suffix="%"><input type="number" id="grid-alpha-num" min="0" max="100"></span>
+            </label>
+            <label class="row">Size
+              <input type="range" id="grid-size" min="5" max="200">
+              <span class="num" data-suffix="px"><input type="number" id="grid-size-num" min="5" max="200"></span>
+            </label>
+          </fieldset>
+        </div>
       </section>
       <div class="splitter-h"></div>
       <section class="panel-section" id="objects">
