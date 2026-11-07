@@ -1613,15 +1613,15 @@ function defaultPath() {
 function defaultMarker() {
   return {
     name: 'New Marker',
-    width: 30,
-    height: 30, 
+    width: 60,
+    height: 80, 
     boxStyle: 'rounded',
     fill: '#808080',
     fillAlpha: 1,
     outlineStyle: 'solid',
     outline: '#ffffff',
     outlineAlpha: 1,
-    thickness: 15,
+    thickness: 3,
     slots: [defaultSlot()],
     anchors: defaultAnchors(),
   };
