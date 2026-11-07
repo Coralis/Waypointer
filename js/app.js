@@ -2328,6 +2328,7 @@ function loadMarkerForm() {
 
 function updateMarker() {
   readMarkerForm();
+  updateAnchorOffsetRanges();
   const name = markerDraft.name.trim();
   const bad = !name || markerTaken.has(name.toLowerCase());
   markerField('name').classList.toggle('invalid', bad);
@@ -2341,6 +2342,11 @@ function updateMarker() {
 function openMarkerEditor(draft, list, editing, onAccept) {
   markerDraft = draft;
   markerDraft.anchors.center ||= { accepts: { marker: true, path: true, icon: true, image: true } };
+  // Markers saved before offsets existed have none
+  Object.keys(ANCHOR_RINGS).forEach((ring) => {
+    markerDraft.anchors[ring].offsetX ??= 0;
+    markerDraft.anchors[ring].offsetY ??= 0;
+  });
   markerAccept = onAccept;
   markerTaken = new Set(list.filter((m) => m !== editing).map((m) => m.name.toLowerCase()));
   // Preview background starts as a copy of the selected layer
@@ -2368,7 +2374,7 @@ const ANCHOR_KINDS = [['marker', 'Marker'], ['path', 'Path'], ['icon', 'Icon'], 
 
 function defaultAnchors() {
   const accepts = () => ({ marker: true, path: true, icon: true, image: true });
-  const ring = () => ({ mid: false, corners: false, double: false, accepts: accepts() });
+  const ring = () => ({ mid: false, corners: false, double: false, offsetX: 0, offsetY: 0, accepts: accepts() });
   return {
     center: { accepts: accepts() },
     perimeter: ring(),
@@ -2415,7 +2421,15 @@ function anchorList(m) {
         pts.push([x, -top], [x, top], [-side, y], [side, y]);
       });
     }
-    pts.forEach(([x, y]) => add(0.5 + (k * x) / m.width, 0.5 + (k * y) / m.height, a.accepts));
+    // Per-ring offsets are in pixels and push anchors away from (positive) or toward (negative) the center
+    // along each axis, so opposite sides move in opposite directions. Anchors on the center line don't move.
+    const ox = a.offsetX || 0;
+    const oy = a.offsetY || 0;
+    pts.forEach(([x, y]) => {
+      const px = k * x + Math.sign(x) * ox;
+      const py = k * y + Math.sign(y) * oy;
+      add(0.5 + px / m.width, 0.5 + py / m.height, a.accepts);
+    });
   });
   return out;
 }
@@ -2503,6 +2517,29 @@ function buildAnchorPanel() {
     });
     return row;
   };
+  const offsetRow = (ring, axis) => {
+    const f = `anchor-${ring}-offset${axis}`;
+    const label = document.createElement('label');
+    label.className = 'row';
+    const slider = document.createElement('input');
+    slider.type = 'range';
+    slider.dataset.f = f;
+    slider.min = -100;
+    slider.max = 100;
+    slider.value = 0;
+    const wrap = document.createElement('span');
+    wrap.className = 'num';
+    wrap.dataset.suffix = 'px';
+    const number = document.createElement('input');
+    number.type = 'number';
+    number.dataset.f = `${f}-num`;
+    number.min = -100;
+    number.max = 100;
+    number.value = 0;
+    wrap.append(number);
+    label.append(`Spread ${axis}`, slider, wrap);
+    return label;
+  };
   const section = (title, ring, kinds, placements = true) => {
     const fs = document.createElement('fieldset');
     const legend = document.createElement('legend');
@@ -2510,6 +2547,7 @@ function buildAnchorPanel() {
     fs.append(legend);
     if (placements) fs.append(checks(ring, ANCHOR_PLACEMENTS, ''));
     fs.append(checks(ring, kinds, 'accepts-', 'Accepts'));
+    if (placements) fs.append(offsetRow(ring, 'X'), offsetRow(ring, 'Y'));
     panel.append(fs);
   };
   section('Center', 'center', ANCHOR_KINDS, false);
@@ -2528,16 +2566,37 @@ function anchorTarget(field) {
 }
 
 function applyAnchorField(field) {
+  field = field.replace(/-num$/, '');
   const { obj, key } = anchorTarget(field);
-  obj[key] = markerField(field).checked;
+  const el = markerField(field);
+  // The slider holds the clamped value when the number box is typed past its range
+  obj[key] = el.type === 'checkbox' ? el.checked : Number(el.value);
   drawMarkerPreview();
 }
 
+// Offsets range over +/- twice the marker's width (X) or height (Y). Shrinking the marker clamps stored offsets.
+function updateAnchorOffsetRanges() {
+  const m = markerDraft;
+  Object.keys(ANCHOR_RINGS).forEach((ring) => {
+    [['offsetX', m.width * 2], ['offsetY', m.height * 2]].forEach(([key, limit]) => {
+      const f = `anchor-${ring}-${key}`;
+      const a = m.anchors[ring];
+      a[key] = clamp(a[key] || 0, -limit, limit);
+      [markerField(f), markerField(`${f}-num`)].forEach((el) => {
+        el.min = -limit;
+        el.max = limit;
+        el.value = a[key];
+      });
+    });
+  });
+}
+
 function loadAnchorForm() {
-  $('#anchor-panel').querySelectorAll('[data-f]').forEach((el) => {
+  $('#anchor-panel').querySelectorAll('input[type=checkbox][data-f]').forEach((el) => {
     const { obj, key } = anchorTarget(el.dataset.f);
     el.checked = !!obj[key];
   });
+  updateAnchorOffsetRanges();
 }
 
 // Text and Anchors fit the marker to the preview and lock zoom and pan; Style keeps the user's view
