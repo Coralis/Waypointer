@@ -99,6 +99,7 @@ function newMap() {
     layers: [defaultLayer('Background')],
     objects: [],
     selectedObject: null,
+    selectedObjects: [],
   };
   maps.push(map);
   map.selection = [map.layers[0]];
@@ -219,6 +220,7 @@ function loadMapData(data) {
       slotTexts: { ...(object.slotTexts || {}) },
     })),
     selectedObject: null,
+    selectedObjects: [],
   };
   map.selection = [layers[0]];
   map.anchor = layers[0];
@@ -261,6 +263,9 @@ function renderFills() {
   renderAnchorGuides();
 }
 
+// Set while a multi-selection is being dragged: the pressed object's kind, and the objects moving with it
+let groupDrag = null;
+
 function renderAnchorGuides() {
   const guides = $('#anchor-guides');
   guides.replaceChildren();
@@ -268,10 +273,10 @@ function renderAnchorGuides() {
   const marker = selectedObject ? (selectedObject.type === 'marker' ? selectedObject.marker : null) : activeMarker();
   const path = selectedObject ? (selectedObject.type === 'path' ? selectedObject.path : null) : activePath();
   const icon = selectedObject ? (selectedObject.type === 'icon' ? selectedObject.icon : null) : activeIcon();
-  const kind = marker ? 'marker' : path ? 'path' : icon ? 'icon' : null;
+  const kind = groupDrag ? groupDrag.kind : marker ? 'marker' : path ? 'path' : icon ? 'icon' : null;
   const anchorSnap = snap.anchor;
   if (!kind || !anchorSnap) return;
-  activeMap.objects.filter((object) => object.type === 'marker' && object.layer.visible).forEach((object) => {
+  activeMap.objects.filter((object) => object.type === 'marker' && object.layer.visible && !groupDrag?.exclude.includes(object)).forEach((object) => {
     anchorList(object.marker).filter((anchor) => anchor.accepts.includes(kind)).forEach((anchor) => {
       const x = object.x + (anchor.x - 0.5) * object.marker.width;
       const y = object.y + (anchor.y - 0.5) * object.marker.height;
@@ -294,6 +299,7 @@ let objectCounter = 0;
 function layerObjects(layer) {
   const g = svgEl('g', {});
   const selected = activeMap.selectedObject;
+  const group = activeMap.selectedObjects.length > 1 ? activeMap.selectedObjects : [];
   const objects = activeMap.objects.filter((o) => o.layer === layer);
   const merged = objects.filter((o) => o.type === 'path' && o.path.merge);
   objects.forEach((o) => {
@@ -313,6 +319,10 @@ function layerObjects(layer) {
     }
     if (o === selected && o.type === 'marker') node.append(selectionBox(o.marker));
     if (o === selected && o.type === 'icon') node.append(selectionBox(o.icon));
+    if (group.includes(o)) {
+      if (o.type === 'path') node.append(pathSelectionHighlight(o.path, o.start, o.end));
+      else node.append(selectionBox(o.type === 'icon' ? o.icon : o.marker));
+    }
     g.append(node);
   });
   // A selected merged path gets its highlight and handles on top of everything
@@ -322,6 +332,10 @@ function layerObjects(layer) {
       pathEndpointHandle(selected, 'start'),
       pathEndpointHandle(selected, 'end')));
   }
+  // Merged paths in a multi-selection get a highlight on top as well
+  merged.filter((o) => group.includes(o)).forEach((o) => {
+    g.append(svgEl('g', { 'data-obj': o.id }, pathSelectionHighlight(o.path, o.start, o.end)));
+  });
   return g;
 }
 
@@ -370,11 +384,17 @@ function pathEndpointHandle(object, endpoint) {
   });
 }
 
-function clearObjectSelection() {
-  if (!activeMap.selectedObject) return;
-  activeMap.selectedObject = null;
+// selectedObjects is the full selection; selectedObject is set only when exactly one object is selected
+function setObjectSelection(objects) {
+  activeMap.selectedObjects = objects;
+  activeMap.selectedObject = objects.length === 1 ? objects[0] : null;
   renderFills();
   renderProperties();
+}
+
+function clearObjectSelection() {
+  if (!activeMap.selectedObjects.length) return;
+  setObjectSelection([]);
 }
 
 function renderProperties() {
@@ -387,6 +407,8 @@ function renderProperties() {
   const empty = $('#properties .empty');
   const panel = $('#marker-properties');
   empty.hidden = !!item;
+  const count = activeMap?.selectedObjects.length || 0;
+  empty.textContent = count > 1 ? `${count} objects selected.` : 'Nothing selected.';
   panel.hidden = !item;
   if (!item) return;
   $('#selected-item-name').textContent = item.name;
@@ -606,7 +628,8 @@ function deleteLayers(targets) {
   const first = Math.min(...targets.map((t) => ls.indexOf(t)));
   activeMap.layers = ls.filter((l) => !targets.includes(l));
   activeMap.objects = activeMap.objects.filter((o) => !targets.includes(o.layer));
-  if (!activeMap.objects.includes(activeMap.selectedObject)) activeMap.selectedObject = null;
+  activeMap.selectedObjects = activeMap.selectedObjects.filter((o) => activeMap.objects.includes(o));
+  activeMap.selectedObject = activeMap.selectedObjects.length === 1 ? activeMap.selectedObjects[0] : null;
   if (!activeMap.layers.length) activeMap.layers.push(defaultLayer('Background'));
   let sel = activeMap.selection.filter((l) => activeMap.layers.includes(l));
   if (!sel.length) sel = [activeMap.layers[Math.min(first, activeMap.layers.length - 1)]];
@@ -803,8 +826,11 @@ function enablePanZoom(el, getView, apply, enabled = () => true) {
     apply();
   }, { passive: false });
 
+  // Stops the browser's middle-click autoscroll from taking over the pan
+  el.addEventListener('mousedown', (e) => { if (e.button === 1) e.preventDefault(); });
+
   el.addEventListener('pointerdown', (e) => {
-    if (e.button !== 0 && e.button !== 1) return;
+    if (e.button !== 1) return;
     if (!enabled(e)) return;
     e.preventDefault();
     el.setPointerCapture(e.pointerId);
@@ -1042,14 +1068,23 @@ function placePathPoint(e) {
 }
 
 // Picks the topmost placed marker under the cursor, or nothing
+// The topmost object under the pointer that sits on a selected, unlocked layer (or on any visible layer)
+function objectAt(e, anyLayer = false) {
+  for (const el of document.elementsFromPoint(e.clientX, e.clientY)) {
+    const node = el.closest('[data-obj]');
+    if (!node) continue;
+    const obj = activeMap.objects.find((o) => o.id === Number(node.dataset.obj));
+    if (obj && (anyLayer || (activeMap.selection.includes(obj.layer) && !obj.layer.locked))) return obj;
+  }
+  return null;
+}
+
 function selectObjectAt(e) {
-  const el = document.elementFromPoint(e.clientX, e.clientY);
-  const node = el && el.closest('[data-obj]');
-  const obj = node ? activeMap.objects.find((o) => o.id === Number(node.dataset.obj)) : null;
-  if (obj === activeMap.selectedObject) return;
-  activeMap.selectedObject = obj;
-  renderFills();
-  renderProperties();
+  const obj = objectAt(e);
+  const next = obj ? [obj] : [];
+  const current = activeMap.selectedObjects;
+  if (next.length === current.length && next.every((o, i) => o === current[i])) return;
+  setObjectSelection(next);
 }
 
 const markerTemplateSelected = () => allItemStates.some((s) => s.kind === 'marker' && s.selection.length);
@@ -1060,9 +1095,7 @@ const iconTemplateSelected = () => allItemStates.some((s) => s.kind === 'icon' &
 function draggableObjectAt(e) {
   const obj = activeMap.selectedObject;
   if (e.button !== 0 || !obj || !['marker', 'icon'].includes(obj.type) || obj.layer.locked || markerTemplateSelected() || pathTemplateSelected() || iconTemplateSelected()) return null;
-  const el = document.elementFromPoint(e.clientX, e.clientY);
-  const node = el && el.closest('[data-obj]');
-  return node && Number(node.dataset.obj) === obj.id ? obj : null;
+  return objectAt(e) === obj ? obj : null;
 }
 
 function draggablePathEndpointAt(e) {
@@ -1098,6 +1131,67 @@ function startObjectDrag(e, obj) {
   svg.addEventListener('pointerup', up);
 }
 
+// A press on any object of a multi-selection (on an unlocked layer)
+function draggableGroupAt(e) {
+  const group = activeMap.selectedObjects;
+  if (e.button !== 0 || group.length < 2 || markerTemplateSelected() || pathTemplateSelected() || iconTemplateSelected()) return null;
+  const obj = objectAt(e);
+  return obj && group.includes(obj) ? obj : null;
+}
+
+// Moves the whole selection. Snapping is applied to the pressed object only (for a path, its endpoint
+// nearest the press), and every other object moves by the same offset.
+function startGroupDrag(e, clicked) {
+  const movers = activeMap.selectedObjects.filter((o) => !o.layer.locked);
+  const starts = new Map(movers.map((o) => [o, o.type === 'path' ? { start: { ...o.start }, end: { ...o.end } } : { x: o.x, y: o.y }]));
+  const from = canvasPoint(e);
+  let ref;
+  if (clicked.type === 'path') {
+    const nearStart = Math.hypot(from.x - clicked.start.x, from.y - clicked.start.y) <= Math.hypot(from.x - clicked.end.x, from.y - clicked.end.y);
+    ref = { ...(nearStart ? clicked.start : clicked.end) };
+  } else {
+    ref = { x: clicked.x, y: clicked.y };
+  }
+  const startX = e.clientX;
+  const startY = e.clientY;
+  let moved = false;
+  groupDrag = { kind: clicked.type, exclude: movers };
+  renderAnchorGuides();
+  svg.setPointerCapture(e.pointerId);
+  const move = (ev) => {
+    // A press that barely moves stays a click, so it never nudges objects onto the grid
+    if (!moved && Math.hypot(ev.clientX - startX, ev.clientY - startY) < 4) return;
+    moved = true;
+    const p = canvasPoint(ev);
+    let x = ref.x + p.x - from.x;
+    let y = ref.y + p.y - from.y;
+    ({ x, y } = clicked.type === 'path'
+      ? snapPathPosition(clicked.path, clicked.layer, x, y, snap.grid, snap.anchor, movers)
+      : snapMarkerPosition(clicked[clicked.type], clicked.layer, x, y, snap.grid, snap.anchor, movers, clicked.type));
+    const dx = x - ref.x;
+    const dy = y - ref.y;
+    movers.forEach((o) => {
+      const origin = starts.get(o);
+      if (o.type === 'path') {
+        o.start = { x: origin.start.x + dx, y: origin.start.y + dy };
+        o.end = { x: origin.end.x + dx, y: origin.end.y + dy };
+      } else {
+        o.x = origin.x + dx;
+        o.y = origin.y + dy;
+      }
+    });
+    renderFills();
+  };
+  const up = () => {
+    svg.removeEventListener('pointermove', move);
+    svg.removeEventListener('pointerup', up);
+    groupDrag = null;
+    renderAnchorGuides();
+  };
+  svg.addEventListener('pointermove', move);
+  svg.addEventListener('pointerup', up);
+}
+
 function startPathEndpointDrag(e, object, endpoint) {
   const from = canvasPoint(e);
   const start = { ...object[endpoint] };
@@ -1125,7 +1219,9 @@ async function exportMapSvg() {
   const map = activeMap;
   if (!map) return;
   const selected = map.selectedObject;
+  const selectedAll = map.selectedObjects;
   map.selectedObject = null; // keep selection boxes and handles out of the export
+  map.selectedObjects = [];
   const root = svgEl('svg', { xmlns: 'http://www.w3.org/2000/svg' });
   let box;
   try {
@@ -1143,6 +1239,7 @@ async function exportMapSvg() {
     probe.remove();
   } finally {
     map.selectedObject = selected;
+    map.selectedObjects = selectedAll;
   }
 
   const pad = 50;
@@ -1197,23 +1294,79 @@ async function exportMapSvg() {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+function objectBounds(o) {
+  if (o.type === 'path') {
+    const r = (o.path.height + o.path.thickness) / 2;
+    return { x1: Math.min(o.start.x, o.end.x) - r, y1: Math.min(o.start.y, o.end.y) - r, x2: Math.max(o.start.x, o.end.x) + r, y2: Math.max(o.start.y, o.end.y) + r };
+  }
+  const item = o.type === 'icon' ? o.icon : o.marker;
+  const hw = (item.width + item.thickness) / 2;
+  const hh = (item.height + item.thickness) / 2;
+  return { x1: o.x - hw, y1: o.y - hh, x2: o.x + hw, y2: o.y + hh };
+}
+
+// Left-drag on empty canvas draws a box and selects every object it touches (Shift/Ctrl adds to the selection)
+const marqueeEl = svgEl('rect', { fill: 'rgba(74, 158, 255, 0.15)', stroke: '#4a9eff', 'stroke-width': 1, 'stroke-dasharray': '4 3', 'pointer-events': 'none', display: 'none' });
+svg.append(marqueeEl);
+
+function startMarquee(e) {
+  const r = svg.getBoundingClientRect();
+  const from = { clientX: e.clientX, clientY: e.clientY };
+  const base = e.shiftKey || e.ctrlKey || e.metaKey ? [...activeMap.selectedObjects] : [];
+  let active = false;
+  svg.setPointerCapture(e.pointerId);
+  const move = (ev) => {
+    if (!active && Math.hypot(ev.clientX - from.clientX, ev.clientY - from.clientY) < 4) return;
+    active = true;
+    const set = (k, v) => marqueeEl.setAttribute(k, v);
+    set('x', Math.min(from.clientX, ev.clientX) - r.left);
+    set('y', Math.min(from.clientY, ev.clientY) - r.top);
+    set('width', Math.abs(ev.clientX - from.clientX));
+    set('height', Math.abs(ev.clientY - from.clientY));
+    set('display', 'inline');
+  };
+  const up = (ev) => {
+    svg.removeEventListener('pointermove', move);
+    svg.removeEventListener('pointerup', up);
+    marqueeEl.setAttribute('display', 'none');
+    if (!active) return;
+    const a = canvasPoint(from);
+    const b = canvasPoint(ev);
+    const box = { x1: Math.min(a.x, b.x), y1: Math.min(a.y, b.y), x2: Math.max(a.x, b.x), y2: Math.max(a.y, b.y) };
+    const hits = activeMap.objects.filter((o) => {
+      if (!activeMap.selection.includes(o.layer) || !o.layer.visible || o.layer.locked) return false;
+      const t = objectBounds(o);
+      return t.x1 <= box.x2 && t.x2 >= box.x1 && t.y1 <= box.y2 && t.y2 >= box.y1;
+    });
+    setObjectSelection([...base, ...hits.filter((o) => !base.includes(o))]);
+  };
+  svg.addEventListener('pointermove', move);
+  svg.addEventListener('pointerup', up);
+}
+
 function initCanvas() {
   enablePanZoom(svg, () => activeMap.view, applyView, (e) => e.type === 'wheel' || (!draggableObjectAt(e) && !draggablePathEndpointAt(e)));
+  // Double-clicking an object switches the layer selection to that object's layer
+  svg.addEventListener('dblclick', (e) => {
+    if (markerTemplateSelected() || pathTemplateSelected() || iconTemplateSelected()) return;
+    const obj = objectAt(e, true);
+    if (!obj) return;
+    setSelection([obj.layer], obj.layer);
+    if (!obj.layer.locked) setObjectSelection([obj]);
+  });
   svg.addEventListener('pointermove', updateGhost);
   svg.addEventListener('pointerenter', updateGhost);
   svg.addEventListener('pointerleave', hideGhost);
   document.addEventListener('keydown', (e) => {
-    const obj = activeMap.selectedObject;
-    if (e.key !== 'Delete' || !obj || obj.layer.locked) return;
+    const doomed = activeMap.selectedObjects.filter((o) => !o.layer.locked);
+    if (e.key !== 'Delete' || !doomed.length) return;
     if (e.target.closest('input, textarea, select, [contenteditable]') || document.querySelector('dialog[open]')) return;
-    activeMap.objects = activeMap.objects.filter((o) => o !== obj);
-    activeMap.selectedObject = null;
-    renderFills();
-    renderProperties();
+    activeMap.objects = activeMap.objects.filter((o) => !doomed.includes(o));
+    setObjectSelection([]);
   });
   svg.addEventListener('contextmenu', (e) => {
     if (!markerTemplateSelected() && !pathTemplateSelected() && !iconTemplateSelected()) {
-      if (activeMap.selectedObject) {
+      if (activeMap.selectedObjects.length) {
         e.preventDefault();
         clearObjectSelection();
       }
@@ -1238,7 +1391,10 @@ function initCanvas() {
     if (endpoint) startPathEndpointDrag(e, endpoint.object, endpoint.endpoint);
     else {
       const obj = draggableObjectAt(e);
+      const group = obj ? null : draggableGroupAt(e);
       if (obj) startObjectDrag(e, obj);
+      else if (group) startGroupDrag(e, group);
+      else if (e.button === 0 && !markerTemplateSelected() && !pathTemplateSelected() && !iconTemplateSelected()) startMarquee(e);
     }
   });
   svg.addEventListener('pointerup', (e) => {
@@ -1373,7 +1529,6 @@ function createItemBrowser(root, kinds) {
     const st = cur();
     const add = (item) => {
       insertAbove(ref, item);
-      select([item], item);
       render();
     };
     const ed = editor();
@@ -1389,7 +1544,6 @@ function createItemBrowser(root, kinds) {
       insertAbove(src, copy);
       return copy;
     });
-    select(copies, copies[0]);
     render();
   }
 
@@ -1599,22 +1753,22 @@ function defaultPath() {
     name: 'New Path',
     orthogonal: false,
     merge: true,
-    height: 25,
+    height: 15,
     boxStyle: 'square',
     fill: '#808080',
     fillAlpha: 1,
     outlineStyle: 'solid',
     outline: '#ffffff',
     outlineAlpha: 1,
-    thickness: 3,
+    thickness: 1,
   };
 }
 
 function defaultMarker() {
   return {
     name: 'New Marker',
-    width: 60,
-    height: 80, 
+    width: 110,
+    height: 90, 
     boxStyle: 'rounded',
     fill: '#808080',
     fillAlpha: 1,
@@ -2286,12 +2440,14 @@ function snapPathPosition(path, layer, x, y, gridSnap, anchorSnap, excludeObject
   return { x, y };
 }
 
+// excludeObject may be one object or an array of them
 function snapToAcceptedAnchor(kind, x, y, excludeObject = null) {
+  const excluded = Array.isArray(excludeObject) ? excludeObject : [excludeObject];
   const radius = 12 / activeMap.view.zoom;
   let best = null;
   let bestDistance = radius * radius;
   activeMap.objects.forEach((target) => {
-    if (target === excludeObject || target.type !== 'marker' || !target.layer.visible) return;
+    if (excluded.includes(target) || target.type !== 'marker' || !target.layer.visible) return;
     const targets = anchorList(target.marker).filter((anchor) => anchor.accepts.includes(kind));
     targets.forEach((targetAnchor) => {
       const targetX = target.x + (targetAnchor.x - 0.5) * target.marker.width;

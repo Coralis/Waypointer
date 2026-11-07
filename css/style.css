@@ -97,7 +97,7 @@ button:hover { border-color: var(--accent); }
 #new-tab { border: none; background: none; font-size: 1.1rem; }
 
 #canvas-wrap { position: relative; flex: 1; min-height: 0; background: #f4f1ea; }
-#canvas { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+#canvas { width: 100%; height: 100%; display: block; cursor: default; touch-action: none; }
 #canvas.panning { cursor: grabbing; }
 #zoom-controls { position: absolute; right: 0.75rem; bottom: 0.75rem; display: flex; align-items: center; gap: 0.3rem; padding: 0.3rem; background: var(--panel); border: 1px solid var(--border); border-radius: 4px; }
 #zoom-level { min-width: 3.2em; text-align: center; }
@@ -156,11 +156,11 @@ button:hover { border-color: var(--accent); }
 #icon-dialog form { width: min(860px, 92vw); }
 .marker-body { display: flex; gap: 1rem; height: min(520px, 70vh); }
 .marker-left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.5rem; }
-#marker-preview { flex: 1; min-height: 0; width: 100%; border: 1px solid var(--border); border-radius: 4px; cursor: grab; touch-action: none; }
+#marker-preview { flex: 1; min-height: 0; width: 100%; border: 1px solid var(--border); border-radius: 4px; cursor: default; touch-action: none; }
 #marker-preview.panning { cursor: grabbing; }
 #marker-preview.locked { cursor: default; }
 #path-preview { flex: 1; min-height: 0; width: 100%; border: 1px solid var(--border); border-radius: 4px; background: #f4f1ea; }
-#icon-preview { flex: 1; min-height: 0; width: 100%; border: 1px solid var(--border); border-radius: 4px; cursor: grab; touch-action: none; }
+#icon-preview { flex: 1; min-height: 0; width: 100%; border: 1px solid var(--border); border-radius: 4px; cursor: default; touch-action: none; }
 #icon-preview.panning { cursor: grabbing; }
 .path-zoom-row { flex: none; }
 .bg-row { display: flex; align-items: center; gap: 0.6rem; }
