@@ -42,6 +42,14 @@ function initSplitters() {
 
 // Each map keeps its own view transform
 const maps = [];
+
+// Global snapping, shared by placing and moving everything
+const snap = { grid: false, anchor: false };
+
+function renderSnapButtons() {
+  $('#grid-snap').setAttribute('aria-pressed', String(snap.grid));
+  $('#anchor-snap').setAttribute('aria-pressed', String(snap.anchor));
+}
 let activeMap = null;
 let mapCounter = 0;
 
@@ -126,8 +134,10 @@ function saveMap(map = activeMap) {
         itemIndex: allItemStates.find((state) => state.kind === object.type)?.items.indexOf(object[object.type]) ?? -1,
         layerIndex: map.layers.indexOf(object.layer),
         ...(object.type === 'path'
-          ? { start: { ...object.start }, end: { ...object.end }, gridSnap: !!object.gridSnap, anchorSnap: !!object.anchorSnap }
-          : { x: object.x, y: object.y, slotTexts: { ...object.slotTexts }, gridSnap: !!object.gridSnap, anchorSnap: !!object.anchorSnap }),
+          ? { start: { ...object.start }, end: { ...object.end } }
+          : object.type === 'icon'
+            ? { x: object.x, y: object.y }
+            : { x: object.x, y: object.y, slotTexts: { ...object.slotTexts } }),
       })),
     },
   };
@@ -144,6 +154,7 @@ function saveMap(map = activeMap) {
 function loadMapData(data) {
   const mapData = data?.map;
   const itemKeys = { marker: 'markers', path: 'paths', icon: 'icons', image: 'images' };
+  const objectTypes = ['marker', 'path', 'icon'];
   const invalid = () => { throw new Error('Unsupported or invalid map file.'); };
   if (data?.version !== 1 || !mapData || typeof mapData.name !== 'string') invalid();
   if (!mapData.view || !['x', 'y', 'zoom'].every((key) => Number.isFinite(mapData.view[key])) || mapData.view.zoom <= 0) invalid();
@@ -151,7 +162,7 @@ function loadMapData(data) {
   if (!mapData.items || Object.values(itemKeys).some((key) => !Array.isArray(mapData.items[key]))) invalid();
   if (Object.values(itemKeys).some((key) => mapData.items[key].some((item) => !item || typeof item.name !== 'string'))) invalid();
   if (!Array.isArray(mapData.objects) || mapData.objects.some((object) => {
-    if (!object || !['marker', 'path'].includes(object.type) || !Number.isInteger(object.itemIndex) ||
+    if (!object || !objectTypes.includes(object.type) || !Number.isInteger(object.itemIndex) ||
       object.itemIndex < 0 || object.itemIndex >= mapData.items[itemKeys[object.type]].length ||
       !Number.isInteger(object.layerIndex) || object.layerIndex < 0 || object.layerIndex >= mapData.layers.length) return true;
     if (object.type === 'path') return !['start', 'end'].every((point) => object[point] && Number.isFinite(object[point].x) && Number.isFinite(object[point].y));
@@ -191,8 +202,13 @@ function loadMapData(data) {
       layer: layers[object.layerIndex],
       start: { ...object.start },
       end: { ...object.end },
-      gridSnap: !!object.gridSnap,
-      anchorSnap: !!object.anchorSnap,
+    }) : object.type === 'icon' ? ({
+      id: ++objectCounter,
+      type: 'icon',
+      icon: itemRefs.icon[object.itemIndex],
+      layer: layers[object.layerIndex],
+      x: object.x,
+      y: object.y,
     }) : ({
       id: ++objectCounter,
       type: 'marker',
@@ -201,8 +217,6 @@ function loadMapData(data) {
       x: object.x,
       y: object.y,
       slotTexts: { ...(object.slotTexts || {}) },
-      gridSnap: !!object.gridSnap,
-      anchorSnap: !!object.anchorSnap,
     })),
     selectedObject: null,
   };
@@ -253,8 +267,9 @@ function renderAnchorGuides() {
   const selectedObject = activeMap?.selectedObject;
   const marker = selectedObject ? (selectedObject.type === 'marker' ? selectedObject.marker : null) : activeMarker();
   const path = selectedObject ? (selectedObject.type === 'path' ? selectedObject.path : null) : activePath();
-  const kind = marker ? 'marker' : path ? 'path' : null;
-  const anchorSnap = selectedObject ? selectedObject.anchorSnap : (marker || path)?.placementAnchorSnap;
+  const icon = selectedObject ? (selectedObject.type === 'icon' ? selectedObject.icon : null) : activeIcon();
+  const kind = marker ? 'marker' : path ? 'path' : icon ? 'icon' : null;
+  const anchorSnap = snap.anchor;
   if (!kind || !anchorSnap) return;
   activeMap.objects.filter((object) => object.type === 'marker' && object.layer.visible).forEach((object) => {
     anchorList(object.marker).filter((anchor) => anchor.accepts.includes(kind)).forEach((anchor) => {
@@ -289,12 +304,15 @@ function layerObjects(layer) {
     }
     const node = o.type === 'path'
       ? svgEl('g', { 'data-obj': o.id }, pathGroup(o.path, o.start, o.end))
-      : svgEl('g', { transform: `translate(${o.x} ${o.y})`, 'data-obj': o.id }, markerGroup(o.marker, `obj${o.id}`, o.slotTexts));
+      : o.type === 'icon'
+        ? svgEl('g', { transform: `translate(${o.x} ${o.y})`, 'data-obj': o.id }, iconShape(o.icon))
+        : svgEl('g', { transform: `translate(${o.x} ${o.y})`, 'data-obj': o.id }, markerGroup(o.marker, `obj${o.id}`, o.slotTexts));
     if (o === selected && o.type === 'path') {
       node.append(pathSelectionHighlight(o.path, o.start, o.end));
       node.append(pathEndpointHandle(o, 'start'), pathEndpointHandle(o, 'end'));
     }
     if (o === selected && o.type === 'marker') node.append(selectionBox(o.marker));
+    if (o === selected && o.type === 'icon') node.append(selectionBox(o.icon));
     g.append(node);
   });
   // A selected merged path gets its highlight and handles on top of everything
@@ -360,11 +378,12 @@ function clearObjectSelection() {
 }
 
 function renderProperties() {
+  renderSnapButtons();
   const object = activeMap?.selectedObject;
   const marker = object?.type === 'marker' ? object.marker : object ? null : activeMarker();
   const path = object?.type === 'path' ? object.path : object ? null : activePath();
-  const template = !object;
-  const item = marker || path;
+  const icon = object?.type === 'icon' ? object.icon : object ? null : activeIcon();
+  const item = marker || path || icon;
   const empty = $('#properties .empty');
   const panel = $('#marker-properties');
   empty.hidden = !!item;
@@ -372,10 +391,9 @@ function renderProperties() {
   if (!item) return;
   $('#selected-item-name').textContent = item.name;
   $('#selected-marker-text-section').hidden = !marker;
-  $('#selected-marker-coordinate-grid').hidden = !marker;
+  $('#selected-marker-coordinate-grid').hidden = !marker && !icon;
   $('#selected-path-position').hidden = !path || (!object && !pathStartPoint);
   $('#selected-path-empty').hidden = !path || !!object || !!pathStartPoint;
-  $('#selected-marker-snap-actions').hidden = !item;
   const slots = $('#selected-marker-slots');
   slots.replaceChildren();
   (marker?.slots || []).filter((slot) => !slot.default).forEach((slot) => {
@@ -403,18 +421,14 @@ function renderProperties() {
     slots.append(row);
   });
   updateSelectedCoordinates();
-  if (item) {
-    $('#grid-snap').setAttribute('aria-pressed', String(template ? !!item.placementGridSnap : !!object.gridSnap));
-    $('#anchor-snap').setAttribute('aria-pressed', String(template ? !!item.placementAnchorSnap : !!object.anchorSnap));
-  }
 }
 
 function updateSelectedCoordinates() {
   const object = activeMap?.selectedObject;
-  if (object?.type === 'marker') {
+  if (object?.type === 'marker' || object?.type === 'icon') {
     $('#selected-marker-x').value = object.x.toFixed(2);
     $('#selected-marker-y').value = object.y.toFixed(2);
-  } else if (!object && activeMarker()) {
+  } else if (!object && (activeMarker() || activeIcon())) {
     $('#selected-marker-x').value = ghostPosition.x.toFixed(2);
     $('#selected-marker-y').value = ghostPosition.y.toFixed(2);
   }
@@ -433,7 +447,7 @@ function updateSelectedCoordinates() {
 }
 
 // Draws layers bottom-up into g; prefix keeps pattern ids unique per canvas
-function drawLayerFills(g, layers, prefix, objectsFor) {
+function drawLayerFills(g, layers, prefix, objectsFor, showGrid = true) {
   g.replaceChildren();
   const defs = svgEl('defs', {});
   g.append(defs);
@@ -441,7 +455,7 @@ function drawLayerFills(g, layers, prefix, objectsFor) {
     if (!l.visible) return;
     const box = { x: -5000, y: -5000, width: 10000, height: 10000 };
     g.append(svgEl('rect', { ...box, fill: l.color, 'fill-opacity': l.alpha }));
-    if (l.grid.style !== 'none') {
+    if (showGrid && l.grid.style !== 'none') {
       defs.append(gridPattern(`${prefix}-${i}`, l.grid));
       g.append(svgEl('rect', { ...box, fill: `url(#${prefix}-${i})` }));
     }
@@ -821,6 +835,11 @@ function activeMarker() {
   return st && st.kind === 'marker' && st.selection.length === 1 ? st.selection[0] : null;
 }
 
+function activeIcon() {
+  const st = allItemStates.find((s) => s.kind === 'icon' && s.selection.length);
+  return st && st.selection.length === 1 ? st.selection[0] : null;
+}
+
 function activePath() {
   const st = allItemStates.find((s) => s.kind === 'path' && s.selection.length);
   return st && st.selection.length === 1 ? st.selection[0] : null;
@@ -918,13 +937,24 @@ function hideGhost() {
 function drawGhostAt(point) {
   const marker = activeMarker();
   const path = activePath();
+  const icon = activeIcon();
   const layer = placementLayer();
-  if ((!marker && !path) || !layer || svg.classList.contains('panning')) {
+  if ((!marker && !path && !icon) || !layer || svg.classList.contains('panning')) {
     hideGhost();
     return;
   }
+  if (icon) {
+    if (ghostItem !== icon) {
+      ghostEl.replaceChildren(iconShape(icon));
+      ghostItem = icon;
+    }
+    ghostPosition = snapMarkerPosition(icon, layer, point.x, point.y, snap.grid, snap.anchor, null, 'icon');
+    ghostEl.setAttribute('transform', `translate(${ghostPosition.x} ${ghostPosition.y})`);
+    updateSelectedCoordinates();
+    return;
+  }
   if (path) {
-    let snappedPoint = snapPathPosition(path, layer, point.x, point.y, path.placementGridSnap, path.placementAnchorSnap);
+    let snappedPoint = snapPathPosition(path, layer, point.x, point.y, snap.grid, snap.anchor);
     if (pathStartPoint) snappedPoint = constrainPathEndpoint(path, pathStartPoint, snappedPoint);
     ghostEl.removeAttribute('transform');
     if (ghostItem !== path) {
@@ -942,7 +972,7 @@ function drawGhostAt(point) {
     ghostEl.replaceChildren(markerGroup(marker, 'ghost', marker.placementSlotTexts));
     ghostItem = marker;
   }
-  ghostPosition = snapMarkerPosition(marker, layer, point.x, point.y, marker.placementGridSnap, marker.placementAnchorSnap);
+  ghostPosition = snapMarkerPosition(marker, layer, point.x, point.y, snap.grid, snap.anchor);
   ghostEl.setAttribute('transform', `translate(${ghostPosition.x} ${ghostPosition.y})`);
   updateSelectedCoordinates();
 }
@@ -954,7 +984,7 @@ function canvasPoint(e) {
 }
 
 function updateGhost(e) {
-  const item = activeMarker();
+  const item = activeMarker() || activeIcon();
   const path = activePath();
   if ((!item && !path) || !placementLayer() || svg.classList.contains('panning')) {
     hideGhost();
@@ -969,9 +999,19 @@ function placeMarker(e) {
   const layer = placementLayer();
   if (!item || !layer) return;
   const point = canvasPoint(e);
-  const { x, y } = snapMarkerPosition(item, layer, point.x, point.y, item.placementGridSnap, item.placementAnchorSnap);
+  const { x, y } = snapMarkerPosition(item, layer, point.x, point.y, snap.grid, snap.anchor);
   const slotTexts = { ...(item.placementSlotTexts || {}) };
-  activeMap.objects.push({ id: ++objectCounter, type: 'marker', marker: item, layer, x, y, slotTexts, gridSnap: !!item.placementGridSnap, anchorSnap: !!item.placementAnchorSnap });
+  activeMap.objects.push({ id: ++objectCounter, type: 'marker', marker: item, layer, x, y, slotTexts });
+  renderFills();
+}
+
+function placeIcon(e) {
+  const item = activeIcon();
+  const layer = placementLayer();
+  if (!item || !layer) return;
+  const point = canvasPoint(e);
+  const { x, y } = snapMarkerPosition(item, layer, point.x, point.y, snap.grid, snap.anchor, null, 'icon');
+  activeMap.objects.push({ id: ++objectCounter, type: 'icon', icon: item, layer, x, y });
   renderFills();
 }
 
@@ -980,7 +1020,7 @@ function placePathPoint(e) {
   const layer = placementLayer();
   if (!path || !layer) return;
   const cursor = canvasPoint(e);
-  let point = snapPathPosition(path, layer, cursor.x, cursor.y, path.placementGridSnap, path.placementAnchorSnap);
+  let point = snapPathPosition(path, layer, cursor.x, cursor.y, snap.grid, snap.anchor);
   if (pathStartPoint) point = constrainPathEndpoint(path, pathStartPoint, point);
   if (!pathStartPoint) {
     pathStartPoint = point;
@@ -995,8 +1035,6 @@ function placePathPoint(e) {
     layer,
     start: pathStartPoint,
     end: point,
-    gridSnap: !!path.placementGridSnap,
-    anchorSnap: !!path.placementAnchorSnap,
   });
   pathStartPoint = null;
   renderFills();
@@ -1016,11 +1054,12 @@ function selectObjectAt(e) {
 
 const markerTemplateSelected = () => allItemStates.some((s) => s.kind === 'marker' && s.selection.length);
 const pathTemplateSelected = () => allItemStates.some((s) => s.kind === 'path' && s.selection.length);
+const iconTemplateSelected = () => allItemStates.some((s) => s.kind === 'icon' && s.selection.length);
 
 // The selected placed marker, if the press at e landed on it and it can be moved
 function draggableObjectAt(e) {
   const obj = activeMap.selectedObject;
-  if (e.button !== 0 || !obj || obj.type !== 'marker' || obj.layer.locked || markerTemplateSelected() || pathTemplateSelected()) return null;
+  if (e.button !== 0 || !obj || !['marker', 'icon'].includes(obj.type) || obj.layer.locked || markerTemplateSelected() || pathTemplateSelected() || iconTemplateSelected()) return null;
   const el = document.elementFromPoint(e.clientX, e.clientY);
   const node = el && el.closest('[data-obj]');
   return node && Number(node.dataset.obj) === obj.id ? obj : null;
@@ -1044,7 +1083,7 @@ function startObjectDrag(e, obj) {
     const p = canvasPoint(ev);
     let x = start.x + p.x - from.x;
     let y = start.y + p.y - from.y;
-    ({ x, y } = snapMarkerPosition(obj.marker, obj.layer, x, y, obj.gridSnap, obj.anchorSnap, obj));
+    ({ x, y } = snapMarkerPosition(obj[obj.type], obj.layer, x, y, snap.grid, snap.anchor, obj, obj.type));
     obj.x = x;
     obj.y = y;
     node.setAttribute('transform', `translate(${obj.x} ${obj.y})`);
@@ -1067,7 +1106,7 @@ function startPathEndpointDrag(e, object, endpoint) {
     const point = canvasPoint(ev);
     const moved = { x: start.x + point.x - from.x, y: start.y + point.y - from.y };
     const opposite = object[endpoint === 'start' ? 'end' : 'start'];
-    let snapped = snapPathPosition(object.path, object.layer, moved.x, moved.y, object.gridSnap, object.anchorSnap, object);
+    let snapped = snapPathPosition(object.path, object.layer, moved.x, moved.y, snap.grid, snap.anchor, object);
     snapped = constrainPathEndpoint(object.path, opposite, snapped);
     object[endpoint] = snapped;
     renderFills();
@@ -1079,6 +1118,83 @@ function startPathEndpointDrag(e, object, endpoint) {
   };
   svg.addEventListener('pointermove', move);
   svg.addEventListener('pointerup', up);
+}
+
+// Exports the active map as a standalone SVG, cropped to its objects (or the current view if it has none)
+async function exportMapSvg() {
+  const map = activeMap;
+  if (!map) return;
+  const selected = map.selectedObject;
+  map.selectedObject = null; // keep selection boxes and handles out of the export
+  const root = svgEl('svg', { xmlns: 'http://www.w3.org/2000/svg' });
+  let box;
+  try {
+    const fills = svgEl('g', {});
+    drawLayerFills(fills, map.layers, 'export', layerObjects, false);
+    root.append(...fills.childNodes);
+
+    // Measure the objects in a hidden, attached svg since getBBox needs rendering
+    const probe = svgEl('svg', { width: 0, height: 0, style: 'position:absolute;left:-9999px;visibility:hidden' });
+    const content = svgEl('g', {});
+    map.layers.filter((l) => l.visible).forEach((l) => content.append(layerObjects(l)));
+    probe.append(content);
+    document.body.append(probe);
+    box = content.getBBox();
+    probe.remove();
+  } finally {
+    map.selectedObject = selected;
+  }
+
+  const pad = 50;
+  let x, y, w, h;
+  if (box.width > 0 || box.height > 0) {
+    x = box.x - pad;
+    y = box.y - pad;
+    w = box.width + pad * 2;
+    h = box.height + pad * 2;
+  } else {
+    const r = svg.getBoundingClientRect();
+    const v = map.view;
+    x = -v.x / v.zoom;
+    y = -v.y / v.zoom;
+    w = r.width / v.zoom;
+    h = r.height / v.zoom;
+  }
+  root.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+  root.setAttribute('width', Math.ceil(w));
+  root.setAttribute('height', Math.ceil(h));
+
+  // Icon images are relative file references; embed them so the export stands alone
+  const toDataUri = (blob) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+  const cache = new Map();
+  await Promise.all([...root.querySelectorAll('image')].map(async (img) => {
+    const href = img.getAttribute('href');
+    if (!href || href.startsWith('data:')) return;
+    try {
+      if (!cache.has(href)) {
+        cache.set(href, fetch(href).then((res) => {
+          if (!res.ok) throw new Error(res.statusText);
+          return res.blob();
+        }).then(toDataUri));
+      }
+      img.setAttribute('href', await cache.get(href));
+    } catch (error) {
+      console.warn(`Could not embed ${href}`, error);
+    }
+  }));
+
+  const text = `<?xml version="1.0" encoding="UTF-8"?>\n${new XMLSerializer().serializeToString(root)}`;
+  const url = URL.createObjectURL(new Blob([text], { type: 'image/svg+xml' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${map.name.replace(/[<>:"/\\|?*\x00-\x1f]/g, '_').trim() || 'map'}.svg`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function initCanvas() {
@@ -1096,14 +1212,14 @@ function initCanvas() {
     renderProperties();
   });
   svg.addEventListener('contextmenu', (e) => {
-    if (!markerTemplateSelected() && !pathTemplateSelected()) {
+    if (!markerTemplateSelected() && !pathTemplateSelected() && !iconTemplateSelected()) {
       if (activeMap.selectedObject) {
         e.preventDefault();
         clearObjectSelection();
       }
       return;
     }
-    const st = allItemStates.find((s) => ['marker', 'path'].includes(s.kind) && s.selection.length);
+    const st = allItemStates.find((s) => ['marker', 'path', 'icon'].includes(s.kind) && s.selection.length);
     e.preventDefault();
     st.selection = [];
     st.anchor = null;
@@ -1128,6 +1244,7 @@ function initCanvas() {
   svg.addEventListener('pointerup', (e) => {
     if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 4) {
       if (markerTemplateSelected()) placeMarker(e);
+      else if (iconTemplateSelected()) placeIcon(e);
       else if (pathTemplateSelected()) placePathPoint(e);
       else selectObjectAt(e);
     }
@@ -1148,27 +1265,21 @@ function initCanvas() {
   $('#new-tab').addEventListener('click', newMap);
   $('[data-action="new"]').addEventListener('click', newMap);
   $('[data-action="save"]').addEventListener('click', () => saveMap());
+  $('[data-action="export"]')?.addEventListener('click', () => exportMapSvg());
+  const snapChanged = () => {
+    renderSnapButtons();
+    renderAnchorGuides();
+    drawGhostAt(ghostPointerPosition);
+  };
   $('#grid-snap').addEventListener('click', () => {
-    const object = activeMap.selectedObject;
-    const item = object ? (object.marker || object.path) : (activeMarker() || activePath());
-    if (!item) return;
-    if (object) object.gridSnap = !object.gridSnap;
-    else item.placementGridSnap = !item.placementGridSnap;
-    renderProperties();
-    if (!object) drawGhostAt(ghostPointerPosition);
+    snap.grid = !snap.grid;
+    snapChanged();
   });
   $('#anchor-snap').addEventListener('click', () => {
-    const object = activeMap.selectedObject;
-    const item = object ? (object.marker || object.path) : (activeMarker() || activePath());
-    if (!item) return;
-    if (object) object.anchorSnap = !object.anchorSnap;
-    else item.placementAnchorSnap = !item.placementAnchorSnap;
-    renderProperties();
-    renderAnchorGuides();
-    if (!object) {
-      drawGhostAt(ghostPointerPosition);
-    }
+    snap.anchor = !snap.anchor;
+    snapChanged();
   });
+  renderSnapButtons();
   const loadInput = document.createElement('input');
   loadInput.type = 'file';
   loadInput.accept = '.json,application/json';
@@ -1220,12 +1331,12 @@ function createItemBrowser(root, kinds) {
     cur().selection = sel;
     if (anchor) cur().anchor = anchor;
     else if (!sel.length) cur().anchor = null;
-    if (sel.length && ['marker', 'path'].includes(cur().kind)) clearObjectSelection();
+    if (sel.length && ['marker', 'path', 'icon'].includes(cur().kind)) clearObjectSelection();
     selectionSyncers.forEach((fn) => fn());
     renderProperties();
     renderAnchorGuides();
     if (!activePath()) pathStartPoint = null;
-    if (activeMarker() || activePath()) drawGhostAt(ghostPointerPosition);
+    if (activeMarker() || activePath() || activeIcon()) drawGhostAt(ghostPointerPosition);
     else {
       pathStartPoint = null;
       hideGhost();
@@ -1496,8 +1607,6 @@ function defaultPath() {
     outline: '#ffffff',
     outlineAlpha: 1,
     thickness: 3,
-    placementGridSnap: false,
-    placementAnchorSnap: false,
   };
 }
 
@@ -2157,13 +2266,13 @@ function anchorList(m) {
   return out;
 }
 
-function snapMarkerPosition(marker, layer, x, y, gridSnap, anchorSnap, excludeObject = null) {
+function snapMarkerPosition(marker, layer, x, y, gridSnap, anchorSnap, excludeObject = null, kind = 'marker') {
   if (gridSnap) {
     const size = Math.max(Number(layer.grid.size) || 1, 0.0001);
     x = Math.round(x / size) * size;
     y = Math.round(y / size) * size;
   }
-  if (anchorSnap) ({ x, y } = snapToAcceptedAnchor('marker', x, y, excludeObject));
+  if (anchorSnap) ({ x, y } = snapToAcceptedAnchor(kind, x, y, excludeObject));
   return { x, y };
 }
 

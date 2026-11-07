@@ -37,8 +37,8 @@ button:hover { border-color: var(--accent); }
 #marker-properties { display: flex; flex-direction: column; gap: 0.6rem; }
 #marker-properties[hidden] { display: none; }
 #marker-properties [hidden] { display: none; }
-#marker-properties fieldset { min-width: 0; margin: 0; padding: 0.4rem 0.5rem 0.5rem; border: 1px solid var(--border); border-radius: 4px; }
-#marker-properties legend { padding: 0 0.25rem; font-size: 0.72rem; text-transform: uppercase; color: var(--muted); }
+#marker-properties fieldset, #snap-section { min-width: 0; margin: 0; padding: 0.4rem 0.5rem 0.5rem; border: 1px solid var(--border); border-radius: 4px; }
+#marker-properties legend, #snap-section legend { padding: 0 0.25rem; font-size: 0.72rem; text-transform: uppercase; color: var(--muted); }
 #selected-marker-slots { display: flex; flex-direction: column; gap: 0.4rem; }
 .property-slot { display: grid; grid-template-columns: minmax(4em, 0.7fr) minmax(0, 1fr); align-items: center; gap: 0.4rem; }
 .property-slot label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -50,13 +50,36 @@ button:hover { border-color: var(--accent); }
 .path-point-readout strong { color: var(--muted); font-weight: 500; }
 .path-point-readout span, .path-length-readout { display: flex; justify-content: space-between; gap: 0.35rem; font-variant-numeric: tabular-nums; }
 .path-point-readout output, .path-length-readout output { text-align: right; }
-.snap-actions { display: flex; gap: 0.4rem; margin-top: 0.6rem; }
+#snap-section { margin-top: 0.6rem; }
+.snap-actions { display: flex; gap: 0.4rem; }
 .snap-actions button { flex: 1; padding-inline: 0.3rem; }
 .snap-actions button[aria-pressed="true"] { border-color: var(--accent); background: var(--bg); box-shadow: inset 0 0 0 1px var(--accent); }
 .item-list { list-style: none; margin: 0; padding: 0; }
 .item-list li { padding: 0.25rem 0.4rem; border-radius: 3px; cursor: pointer; }
 .item-list li:hover { background: var(--panel-alt); }
 .item-list li.selected { outline: 1px solid var(--accent); outline-offset: -1px; }
+
+/* Properties: fixed header, scrolling content, Snap pinned to bottom */
+#properties {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;      /* override .panel-section's overflow: auto */
+  min-height: 0;
+}
+
+#properties > h2 { flex: none; }
+
+#properties > .empty,
+#properties > #marker-properties {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+#snap-section {
+  flex: none;
+  margin-top: 0.6rem;   /* keep your existing spacing */
+}
 
 /* Splitters */
 .splitter-v { flex: none; width: 5px; cursor: col-resize; background: var(--border); }
